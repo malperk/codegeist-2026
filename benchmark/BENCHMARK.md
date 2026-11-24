@@ -43,6 +43,15 @@ cases are run once, at the end, and published as they come out.
 Record: the Jira text given to the agent, the generated test, the bisect log, the chosen commit,
 wall time, model calls and cost, and every human touch (target: zero).
 
-## Controls (to be added before any held-out run, in a dated commit)
-Misleading reports and planted wrong "fixes" whose correct outcome is an abstention, not a
-confident wrong commit.
+## Controls: `controls.csv` (added 2026-11-24, before any run)
+Nine cases whose only correct outcome is an abstention. A confident answer on any of them is a
+failure and is reported as a false positive.
+- **Not a bug (6):** LANG bugs that Apache resolved as "Not A Problem" or "Invalid" (created
+  2008-2014), chosen by sha256 order with seed `codegeist-2026-controls` from all 26 such issues,
+  no hand-picking. Revision = last first-parent commit on `master` before the report was created.
+  One of them (LANG-861) is a misfiled, unrelated report; it stays in because the rule picked it.
+- **Planted wrong fix (3):** dev cases whose "fixed" commit is replaced by another case's fix that
+  does not contain the real fix (same seed rule). A correct test still fails on the claimed fix,
+  so the agent must report that it cannot show test validity instead of claiming success.
+
+Extra metric: **false-confidence rate** = confident answers on controls / 9.
