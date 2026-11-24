@@ -3,7 +3,7 @@
 FROM eclipse-temurin:8-jdk
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends python3 git ca-certificates \
+ && apt-get install -y --no-install-recommends python3 python3-jwt python3-cryptography git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
 # Full history of the project under test, as published by Apache.
@@ -13,6 +13,7 @@ RUN git clone --bare --quiet https://github.com/apache/commons-lang.git /opt/com
 COPY .cache/lib/ /opt/deps/
 COPY harness/ /opt/app/harness/
 COPY benchmark/ /opt/app/benchmark/
+COPY runner/server.py /opt/app/runner/server.py
 
 ENV RUNNER_MODE=local \
     RUNNER_LIB=/opt/deps \
@@ -20,4 +21,6 @@ ENV RUNNER_MODE=local \
     PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /opt/app/harness
-CMD ["python3", "selfcheck.py"]
+EXPOSE 8080
+# Default: the HTTP service (Cloud Run). `docker run IMAGE python3 selfcheck.py` still works.
+CMD ["python3", "/opt/app/runner/server.py"]
