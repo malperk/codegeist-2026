@@ -10,6 +10,7 @@ Usage: python3 selfcheck.py > ../benchmark/results/selfcheck-dev.json
 
 import csv
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -21,7 +22,7 @@ from minimal_test import minimal
 from run_test import read_test_source, run
 
 ROOT = Path(__file__).resolve().parent.parent
-GIT = str(ROOT / ".cache" / "commons-lang.git")
+GIT = os.environ.get("RUNNER_GIT", str(ROOT / ".cache" / "commons-lang.git"))
 TRIGGER = "https://raw.githubusercontent.com/rjust/defects4j/master/framework/projects/Lang/trigger_tests/{}"
 
 

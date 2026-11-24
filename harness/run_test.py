@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-LIB = HERE.parent / ".cache" / "lib"
+LIB = Path(os.environ.get("RUNNER_LIB", HERE.parent / ".cache" / "lib"))
 IMAGE = "eclipse-temurin:8-jdk"
 MAIN_DIRS = ["src/main/java", "src/java"]
 TEST_DIRS = ["src/test/java", "src/test"]
@@ -105,17 +105,19 @@ def run(git_dir: str, commit: str, test: str, overlay_from: str | None, timeout:
         # Lang 2.x has a package named `enum`, which is a keyword from Java 5 on.
         source = "1.4" if (src / main_dir / "org/apache/commons/lang/enum").is_dir() else "1.6"
         shutil.copy(HERE / "SingleTest.java", work / "SingleTest.java")
+        local = os.environ.get("RUNNER_MODE") == "local"  # already inside the JDK 8 image
+        wdir, deps = (str(work), str(LIB)) if local else ("/w", "/deps")
         script = f"""
 set -e
-cd /w
+cd {wdir}
 mkdir -p out/main out/test out/h
 find src/{main_dir} -name '*.java' > main.txt
-DEPS=$(ls /deps/*.jar | tr '\\n' ':')
+DEPS=$(ls {deps}/*.jar | tr '\\n' ':')
 for enc in UTF-8 ISO-8859-1; do
   if javac -nowarn -source {source} -target {source} -encoding $enc -cp "$DEPS" -d out/main @main.txt 2> main.err; then ok=1; break; fi
 done
 [ -n "$ok" ] || {{ echo 'RESULT ERROR main compile'; tail -20 main.err; exit 2; }}
-CP=out/main:$(ls /deps/*.jar | tr '\\n' ':')
+CP=out/main:$(ls {deps}/*.jar | tr '\\n' ':')
 javac -nowarn -encoding UTF-8 -source 1.6 -target 1.6 -cp "$CP" -sourcepath src/{test_dir} \
    -d out/test src/{rel} 2> test.err || javac -nowarn -encoding ISO-8859-1 -source 1.6 -target 1.6 \
    -cp "$CP" -sourcepath src/{test_dir} -d out/test src/{rel} 2> test.err || \
@@ -123,10 +125,10 @@ javac -nowarn -encoding UTF-8 -source 1.6 -target 1.6 -cp "$CP" -sourcepath src/
 javac -nowarn -cp "$CP" -d out/h SingleTest.java
 cd src && timeout {timeout} java -cp "../out/test:../out/main:{test_dir}:$(echo $CP | sed 's#out/main#../out/main#'):../out/h" SingleTest '{test}'
 """
-        proc = subprocess.run(
-            ["docker", "run", "--rm", "--network", "none", "-v", f"{work}:/w", "-v", f"{LIB}:/deps:ro",
-             IMAGE, "bash", "-c", script],
-            capture_output=True, text=True)
+        cmd = (["bash", "-c", script] if local else
+               ["docker", "run", "--rm", "--network", "none", "-v", f"{work}:/w", "-v", f"{LIB}:/deps:ro",
+                IMAGE, "bash", "-c", script])
+        proc = subprocess.run(cmd, capture_output=True, text=True)
         out = proc.stdout + proc.stderr
         line = next((l for l in out.splitlines() if l.startswith("RESULT ")), "RESULT ERROR no result")
         verdict = line.split()[1]
