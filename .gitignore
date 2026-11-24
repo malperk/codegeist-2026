@@ -1,0 +1,9 @@
+node_modules/
+.forge/
+.idea/
+.DS_Store
+.env
+.env.*
+*.log
+# Large third-party data stays outside the repo (scratchpad / cache)
+data/raw/

@@ -1,0 +1,5 @@
+item,reason
+Lang-25 (LANG-658),Defects4J deprecated: JVM11.Not.Repoducible
+Lang-48 (LANG-393),Defects4J deprecated: JVM11.Not.Repoducible
+Lang-65 (LANG-59),Excluded by Fonte authors from Wen et al. (failed soundness validation)
+All Math cases,BIC hashes come from an older git conversion not present in apache/commons-math or the current Defects4J repos; deferred
