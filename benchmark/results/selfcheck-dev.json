@@ -1,0 +1,180 @@
+[
+ {
+  "case_id": "LANG-D4J-19",
+  "jira": "LANG-710",
+  "test": "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest::testUnfinishedEntity",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic_parent": "pile\nsrc/src/test/org/apache/commons/lang/text/translate/NumericEntityUnescaperTest.java:29: error: cannot find symbol\n        NumericEntityUnescaper neu = new NumericEntityUnescaper();\n        ^\n  symbol:   class NumericEntityUnescaper\n  location: class NumericEntityUnescaperTest\nsrc/src/test/org/apache/commons/lang/text/translate/NumericEntityUnescaperTest.java:29: error: cannot find symbol\n        NumericEntityUnescaper neu = new NumericEntityUnescaper();\n                                         ^\n  symbol:   class NumericEntityUnescaper\n  location: class NumericEntityUnescaperTest\n2 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-22",
+  "jira": "LANG-662",
+  "test": "org.apache.commons.lang3.math.FractionTest::testReducedFactory_int_int",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "PASS"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {}
+ },
+ {
+  "case_id": "LANG-D4J-26",
+  "jira": "LANG-645",
+  "test": "org.apache.commons.lang3.time.FastDateFormatTest::testLang645",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic_parent": "RESULT NOCOMPILE test compile\nsrc/src/test/org/apache/commons/lang/time/FastDateFormatTest.java:52: error: cannot find symbol\n        FastDateFormat fdf = FastDateFormat.getInstance(\"EEEE', week 'ww\", locale);\n        ^\n  symbol:   class FastDateFormat\n  location: class FastDateFormatTest\nsrc/src/test/org/apache/commons/lang/time/FastDateFormatTest.java:52: error: cannot find symbol\n        FastDateFormat fdf = FastDateFormat.getInstance(\"EEEE', week 'ww\", locale);\n                             ^\n  symbol:   variable FastDateFormat\n  location: class FastDateFormatTest\n2 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-28",
+  "jira": "LANG-617",
+  "test": "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest::testSupplementaryUnescaping",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic_parent": "pile\nsrc/src/test/org/apache/commons/lang/text/translate/NumericEntityUnescaperTest.java:28: error: cannot find symbol\n        NumericEntityUnescaper neu = new NumericEntityUnescaper();\n        ^\n  symbol:   class NumericEntityUnescaper\n  location: class NumericEntityUnescaperTest\nsrc/src/test/org/apache/commons/lang/text/translate/NumericEntityUnescaperTest.java:28: error: cannot find symbol\n        NumericEntityUnescaper neu = new NumericEntityUnescaper();\n                                         ^\n  symbol:   class NumericEntityUnescaper\n  location: class NumericEntityUnescaperTest\n2 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-39",
+  "jira": "LANG-552",
+  "test": "org.apache.commons.lang3.StringUtilsTest::testReplace_StringStringArrayStringArray",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "FAIL"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": false
+  },
+  "errors": {}
+ },
+ {
+  "case_id": "LANG-D4J-52",
+  "jira": "LANG-363",
+  "test": "org.apache.commons.lang.StringEscapeUtilsTest::testEscapeJavaScript",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic_parent": "ind symbol\n        assertEquals(\"He didn\\\\'t say, \\\\\\\"stop!\\\\\\\"\", StringEscapeUtils.escapeJavaScript(\"He didn't say, \\\"stop!\\\"\"));\n                                                       ^\n  symbol:   variable StringEscapeUtils\n  location: class StringEscapeUtilsTest\nsrc/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java:106: error: cannot find symbol\n                StringEscapeUtils.escapeJavaScript(\"document.getElementById(\\\"test\\\").value = '<script>alert('aaa');</script>';\"));\n                ^\n  symbol:   variable StringEscapeUtils\n  location: class StringEscapeUtilsTest\n11 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-55",
+  "jira": "LANG-315",
+  "test": "org.apache.commons.lang.time.StopWatchTest::testLang315",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "FAIL",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": true,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic_parent": "RESULT NOCOMPILE test compile\nsrc/src/test/org/apache/commons/lang/time/StopWatchTest.java:47: error: cannot find symbol\n        StopWatch watch = new StopWatch();\n        ^\n  symbol:   class StopWatch\n  location: class StopWatchTest\nsrc/src/test/org/apache/commons/lang/time/StopWatchTest.java:47: error: cannot find symbol\n        StopWatch watch = new StopWatch();\n                              ^\n  symbol:   class StopWatch\n  location: class StopWatchTest\n2 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-57",
+  "jira": "LANG-304",
+  "test": "org.apache.commons.lang.LocaleUtilsTest::testAvailableLocaleSet",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "ERROR",
+   "bic_parent": "ERROR"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": false,
+   "bic_parent": false
+  },
+  "errors": {
+   "bic": "nt mismatch; char[] cannot be converted to CharSequence)\nsrc/src/java/org/apache/commons/lang/text/StrBuilder.java:2291: error: no suitable method found for append(char[],int,int)\n            append(cbuf, off, len);\n            ^\n    method Writer.append(CharSequence,int,int) is not applicable\n      (argument mismatch; char[] cannot be converted to CharSequence)\n    method Writer.append(CharSequence,int,int) is not applicable\n      (argument mismatch; char[] cannot be converted to CharSequence)\nNote: Some messages have been simplified; recompile with -Xdiags:verbose to get full output\n2 errors",
+   "bic_parent": "nt mismatch; char[] cannot be converted to CharSequence)\nsrc/src/java/org/apache/commons/lang/text/StrBuilder.java:2291: error: no suitable method found for append(char[],int,int)\n            append(cbuf, off, len);\n            ^\n    method Writer.append(CharSequence,int,int) is not applicable\n      (argument mismatch; char[] cannot be converted to CharSequence)\n    method Writer.append(CharSequence,int,int) is not applicable\n      (argument mismatch; char[] cannot be converted to CharSequence)\nNote: Some messages have been simplified; recompile with -Xdiags:verbose to get full output\n2 errors"
+  }
+ },
+ {
+  "case_id": "LANG-D4J-61",
+  "jira": "LANG-294",
+  "test": "org.apache.commons.lang.text.StrBuilderTest::testIndexOfLang294",
+  "results": {
+   "buggy": "FAIL",
+   "fixed": "PASS",
+   "bic": "NOCOMPILE",
+   "bic_parent": "NOCOMPILE"
+  },
+  "as_expected": {
+   "buggy": true,
+   "fixed": true,
+   "bic": false,
+   "bic_parent": true
+  },
+  "errors": {
+   "bic": "new StrMatcher() {\n                 ^\n  symbol:   class StrMatcher\n  location: class StrBuilderTest\nsrc/src/test/org/apache/commons/lang/text/StrBuilderTest.java:69: error: cannot find symbol\n    static final StrMatcher A_NUMBER_MATCHER = new StrMatcher() {\n                                                   ^\n  symbol:   class StrMatcher\n  location: class StrBuilderTest\nsrc/src/test/org/apache/commons/lang/text/StrBuilderTest.java:83: error: cannot find symbol\n        sb.deleteFirst(\"three\");\n          ^\n  symbol:   method deleteFirst(String)\n  location: variable sb of type StrBuilder\n3 errors",
+   "bic_parent": "new StrMatcher() {\n                                                   ^\n  symbol:   class StrMatcher\n  location: class StrBuilderTest\nsrc/src/test/org/apache/commons/lang/text/StrBuilderTest.java:82: error: cannot find symbol\n        StrBuilder sb = new StrBuilder(\"onetwothree\");\n        ^\n  symbol:   class StrBuilder\n  location: class StrBuilderTest\nsrc/src/test/org/apache/commons/lang/text/StrBuilderTest.java:82: error: cannot find symbol\n        StrBuilder sb = new StrBuilder(\"onetwothree\");\n                            ^\n  symbol:   class StrBuilder\n  location: class StrBuilderTest\n4 errors"
+  }
+ }
+]

@@ -7,3 +7,5 @@ node_modules/
 *.log
 # Large third-party data stays outside the repo (scratchpad / cache)
 data/raw/
+.cache/
+__pycache__/
