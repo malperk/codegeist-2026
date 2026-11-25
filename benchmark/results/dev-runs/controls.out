@@ -1,0 +1,3 @@
+CTRL-WRONGFIX2-LANG-D4J-22 CLANG-15 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+CTRL-WRONGFIX2-LANG-D4J-19 CLANG-16 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+CTRL-WRONGFIX2-LANG-D4J-28 CLANG-17 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}

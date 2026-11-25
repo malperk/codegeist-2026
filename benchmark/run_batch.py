@@ -44,6 +44,14 @@ def main(out: str, cases: list[str]) -> None:
             rec = call({"op": "result", "issueKey": key})
             if rec.get("status") in ("done", "error"):
                 break
+            # The agent replied without starting a job: it abstained. Give a queued job a
+            # moment to register first (the reply comment is written after the action returns).
+            if rec.get("status") == "none" and rec.get("agentReply"):
+                time.sleep(20)
+                rec = call({"op": "result", "issueKey": key})
+                if rec.get("status") == "none":
+                    rec["result"] = {"confidence": "abstain", "reason": "agent declined to start a job"}
+                    break
         line = {"case_id": case_id, "issue": key, "created_at": started, "record": rec,
                 "score": score(row, rec), "human_touches": 0}
         with open(out, "a") as f:

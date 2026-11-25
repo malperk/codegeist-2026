@@ -165,6 +165,18 @@ export async function benchmark(req) {
     await kvs.set(`bench:${created.key}`, { caseId: body.caseId, fixed: body.fixed || '' });
     return reply(200, { issueKey: created.key });
   }
-  if (body.op === 'result') return reply(200, (await kvs.get(`job:${body.issueKey}`)) || { status: 'none' });
+  if (body.op === 'result') {
+    const job = (await kvs.get(`job:${body.issueKey}`)) || { status: 'none' };
+    // The Automation rule comments the agent's own reply; an agent that abstains starts no job,
+    // so this comment is the only record of its decision.
+    const res = await api.asApp().requestJira(
+      route`/rest/api/2/issue/${body.issueKey}/comment?orderBy=created&maxResults=100`);
+    if (res.ok) {
+      const { comments } = await res.json();
+      const r = (comments || []).find((c) => (c.body || '').startsWith('Bug Origin agent reply:'));
+      if (r) job.agentReply = { created: r.created, text: r.body.slice(0, 4000) };
+    }
+    return reply(200, job);
+  }
   return reply(400, { error: 'unknown op' });
 }
