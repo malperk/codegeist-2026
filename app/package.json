@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@forge/api": "^8.5.1",
+    "@forge/events": "^3.0.11",
+    "@forge/kvs": "^2.1.3"
+  }
+}

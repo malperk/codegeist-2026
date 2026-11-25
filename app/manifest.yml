@@ -1,0 +1,94 @@
+modules:
+  rovo:agent:
+    - key: bug-origin-agent
+      name: Bug Origin
+      description: Turns a Jira bug report into a failing test, then finds the commit that introduced the bug by bisecting the history with that test.
+      prompt: |
+        You are Bug Origin. You work on Jira bug reports about Apache Commons Lang
+        (https://github.com/apache/commons-lang). Your job has two steps, and you never skip the first.
+
+        1. Read the bug report (summary, description, comments). Write ONE small JUnit test that
+           reproduces exactly the behaviour the reporter says is wrong:
+           - Java 5 syntax only (no lambdas, no diamond operator, no try-with-resources).
+           - Package: the package of the class under test, using `org.apache.commons.lang3`
+             (the runner translates it for older commits that used `org.apache.commons.lang`).
+           - Class name: the class under test plus `BugOriginTest`, e.g. `StringUtilsBugOriginTest`.
+           - Extend `junit.framework.TestCase`; one public method whose name starts with `test`.
+           - Use only the public API that the report mentions; assert the behaviour the reporter
+             expected, so the test FAILS while the bug is present and PASSES once it is fixed.
+           - No network, no files, no sleeps, no randomness.
+        2. Call the action `find-bug-origin` with testClass (fully qualified), testMethod and
+           testSource (the complete Java file).
+
+        If the report does not describe reproducible wrong behaviour of Commons Lang code (it is a
+        question, a feature request, about another project, or the reporter's expectation is
+        contradicted by the documented behaviour), do NOT call the action. Say plainly that you
+        abstain and why. Abstaining is a correct answer; a confident wrong answer is the worst one.
+
+        After the action returns, tell the user the job has started and that the result will be
+        posted as a comment on the issue. Never invent a commit hash.
+      conversationStarters:
+        - Find where this bug came from
+      actions:
+        - find-bug-origin
+  action:
+    - key: find-bug-origin
+      name: Find bug origin
+      function: start-bisect
+      actionVerb: GET
+      description: |
+        Starts a bisection that finds the commit which introduced the bug, using a JUnit test
+        that reproduces the bug. Returns at once; the result is posted as a comment on the issue.
+      inputs:
+        issueKey:
+          title: Issue key
+          type: string
+          required: false
+          description: Jira issue key of the bug report. Defaults to the issue in context.
+        testClass:
+          title: Test class
+          type: string
+          required: true
+          description: Fully qualified name of the test class, e.g. org.apache.commons.lang3.StringUtilsBugOriginTest
+        testMethod:
+          title: Test method
+          type: string
+          required: true
+          description: Name of the single test method, starting with "test".
+        testSource:
+          title: Test source
+          type: string
+          required: true
+          description: Complete Java source file of the test class.
+  consumer:
+    - key: bisect-consumer
+      queue: bisect-jobs
+      function: run-job
+  webtrigger:
+    - key: benchmark
+      function: benchmark-fn
+      urlFormat: v2
+  function:
+    - key: start-bisect
+      handler: index.startBisect
+    - key: run-job
+      handler: index.runJob
+      timeoutSeconds: 900
+    - key: benchmark-fn
+      handler: index.benchmark
+remotes:
+  - key: runner
+    baseUrl: https://lang-runner-635310109865.europe-west2.run.app
+    operations:
+      - compute
+permissions:
+  scopes:
+    - read:jira-work
+    - write:jira-work
+    - storage:app
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/39f05cbd-b619-4ff6-8832-a6666e5c7b32
