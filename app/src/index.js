@@ -6,6 +6,15 @@ const queue = new Queue({ key: 'bisect-jobs' });
 const SHA = /^[0-9a-f]{7,40}$/;
 const POLL_MS = 15000;
 const MAX_WAIT_MS = 13 * 60 * 1000; // consumer timeout is 15 minutes
+const MAX_CHECKS = 3; // test attempts per issue, enforced here rather than in the prompt
+
+/** Short, stable fingerprint of a test source, to tie a bisection to a checked test. */
+function fingerprint(source) {
+  const text = source.replace(/\s+/g, ''); // the agent may re-indent the test between calls
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i += 1) h = Math.imul(h ^ text.charCodeAt(i), 16777619) >>> 0;
+  return h.toString(16);
+}
 
 /** Revision the bug was reported against: issue property first, then "Revision: <sha>" text. */
 async function revisionOf(issueKey) {
@@ -42,11 +51,81 @@ export async function getBugReport(payload) {
     route`/rest/api/2/issue/${issueKey}?fields=summary,description,comment,issuetype`);
   if (!res.ok) return `Could not read ${issueKey}: ${res.status}`;
   const { fields } = await res.json();
-  const comments = (fields.comment?.comments || [])
-    .filter((c) => !/^Bug Origin/.test(c.body || ''))
-    .map((c) => `Comment by ${c.author?.displayName} (${c.created?.slice(0, 10)}):\n${c.body}`);
+  const kept = (fields.comment?.comments || []).filter((c) => !/^Bug Origin/.test(c.body || ''));
+  const roles = {};
+  for (const c of kept) {
+    const id = c.author?.accountId;
+    if (id && !(id in roles)) roles[id] = await isProjectMember(issueKey, id);
+  }
+  const comments = kept.map((c) => {
+    const role = roles[c.author?.accountId] ? 'project member' : 'not a project member';
+    return `Comment by ${c.author?.displayName} [${role}] (${c.created?.slice(0, 10)}):\n${c.body}`;
+  });
   return [`Issue ${issueKey} (${fields.issuetype?.name})`, `Summary: ${fields.summary}`,
     `Description:\n${fields.description || '(none)'}`, ...comments].join('\n\n');
+}
+
+/** A project member here is someone who may resolve issues in the project. */
+async function isProjectMember(issueKey, accountId) {
+  const res = await api.asApp().requestJira(
+    route`/rest/api/3/user/permission/search?permissions=RESOLVE_ISSUES&issueKey=${issueKey}&accountId=${accountId}`);
+  if (!res.ok) return false;
+  const users = await res.json();
+  return Array.isArray(users) && users.some((u) => u.accountId === accountId);
+}
+
+function validTest({ testClass, testMethod, testSource }) {
+  if (!/^[\w.$]+$/.test(testClass || '') || !/^test\w*$/.test(testMethod || '')) {
+    return 'testClass must be a Java class name and testMethod must start with "test".';
+  }
+  if (!testSource || testSource.length > 100000) return 'testSource is missing or too large.';
+  return null;
+}
+
+/**
+ * Rovo action: run the test once on the reported revision and return what happened, so the
+ * agent can repair a test that does not compile or does not fail before asking for a bisection.
+ * Only the reported revision is used: a real user has no fixed commit to check against.
+ */
+export async function checkTest(payload) {
+  const issueKey = payload.issueKey || payload.context?.jira?.issueKey;
+  if (!issueKey) return 'No issue key: open the agent from a Jira issue or pass issueKey.';
+  const bad = validTest(payload);
+  if (bad) return bad;
+  const { testClass, testMethod, testSource } = payload;
+  const revision = await revisionOf(issueKey);
+  if (!revision) return `No revision on ${issueKey}: add a line "Revision: <commit sha>" to the description.`;
+  const checks = (await kvs.get(`checks:${issueKey}`)) || [];
+  if (checks.length >= MAX_CHECKS) {
+    return `Check limit reached (${MAX_CHECKS} attempts). Do not call find-bug-origin; tell the user `
+      + 'that no test reproducing the bug could be written, and why.';
+  }
+  let r;
+  try {
+    r = await remote('/check', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commit: revision, test: `${testClass}::${testMethod}`, source: testSource }),
+    });
+  } catch (e) {
+    r = { result: 'ERROR', output: String(e).slice(0, 300) };
+  }
+  checks.push({ at: new Date().toISOString(), fp: fingerprint(testSource), result: r.result,
+    seconds: r.seconds, testClass, testMethod, testSource, output: (r.output || '').slice(-1500) });
+  await kvs.set(`checks:${issueKey}`, checks);
+  const left = MAX_CHECKS - checks.length;
+  const head = {
+    FAIL: 'FAIL: the test fails on the reported revision. Read the output: if it fails because of the '
+      + 'wrong behaviour the report describes, call find-bug-origin with exactly this test source. If it '
+      + 'fails for another reason (a mistake in the test itself), fix the test and check again.',
+    PASS: 'PASS: the test passes on the reported revision, so it does NOT reproduce the bug. Re-read the '
+      + 'report: use its exact inputs and the exact method it names, and assert what it says is wrong.',
+    NOCOMPILE: 'NOCOMPILE: the test does not compile on the reported revision. Use only the API that '
+      + 'exists there (listed below) and fix the errors shown.',
+    ERROR: 'ERROR: the runner could not build or run this revision.',
+  }[r.result] || `Unexpected result ${r.result}.`;
+  return [head, `Attempts left: ${left}.`, `Output:\n${r.output || ''}`,
+    ...(r.api ? [`Public API of the class under test at ${revision.slice(0, 10)}:\n${r.api.join('\n')}`] : [])]
+    .join('\n\n');
 }
 
 /** Rovo action: validate the request, queue the job, return at once (actions have 55 s). */
@@ -54,10 +133,16 @@ export async function startBisect(payload) {
   const issueKey = payload.issueKey || payload.context?.jira?.issueKey;
   const { testClass, testMethod, testSource } = payload;
   if (!issueKey) return 'No issue key: open the agent from a Jira issue or pass issueKey.';
-  if (!/^[\w.$]+$/.test(testClass || '') || !/^test\w*$/.test(testMethod || '')) {
-    return 'testClass must be a Java class name and testMethod must start with "test".';
+  const bad = validTest(payload);
+  if (bad) return bad;
+  // Only a test that was checked and failed on the reported revision may be bisected
+  // (or one whose check could not run at all: the bisection validates it again anyway).
+  const checks = (await kvs.get(`checks:${issueKey}`)) || [];
+  const ok = checks.some((c) => c.fp === fingerprint(testSource) && ['FAIL', 'ERROR'].includes(c.result));
+  if (!ok) {
+    return 'Refused: call check-test with this exact test source first; only a test that fails on the '
+      + 'reported revision can be bisected.';
   }
-  if (!testSource || testSource.length > 100000) return 'testSource is missing or too large.';
   const revision = await revisionOf(issueKey);
   if (!revision) {
     return `I could not find the revision the bug was reported against on ${issueKey}. `
@@ -167,6 +252,7 @@ export async function benchmark(req) {
   }
   if (body.op === 'result') {
     const job = (await kvs.get(`job:${body.issueKey}`)) || { status: 'none' };
+    job.checks = (await kvs.get(`checks:${body.issueKey}`)) || [];
     // The Automation rule comments the agent's own reply; an agent that abstains starts no job,
     // so this comment is the only record of its decision.
     const res = await api.asApp().requestJira(

@@ -11,13 +11,17 @@ modules:
         1. ALWAYS call the action `get-bug-report` first and read everything it returns (summary,
            description, comments). Never guess the bug from the title alone and never write a test
            about a class or method the report does not mention.
-        2. Decide whether this is a bug at all. ABSTAIN (do not call `find-bug-origin`) if any of
+        2. Decide whether this is a bug at all. Every comment is labelled with its author's role
+           at the time ([project member] or [project committer] for the people who maintain the
+           code, otherwise not). ABSTAIN (do not call `check-test` or `find-bug-origin`) if any of
            these holds, and name the reason in one sentence:
            - The report is a question or asks for clarification ("is this expected?", "am I missing
              anything?", "how do I ...?").
-           - A project member's comment says the behaviour is expected, documented, intended, not a
-             problem, invalid, a duplicate, or for the user list; or that the Javadoc never promised
-             what the reporter expects.
+           - A project member or committer says the behaviour is expected, correct, documented,
+             intended, not a bug, not a problem, invalid, a duplicate, or for the user list; or that
+             the Javadoc never promised what the reporter expects. Their word outweighs the
+             reporter's, even if the reporter disagrees afterwards, unless a later member comment
+             accepts it as a bug.
            - It is a feature request, an improvement, a performance wish, or about build, docs or
              another project.
            - You cannot state, from the report, one concrete input and the wrong result it gives.
@@ -46,15 +50,24 @@ modules:
            - No network, no files, no sleeps, no randomness.
            - If the report already contains a test or a code snippet that shows the bug, base
              your test on it.
-        4. Call the action `find-bug-origin` with testClass (fully qualified), testMethod and
-           testSource (the complete Java file).
+        4. Call the action `check-test` with testClass (fully qualified), testMethod and testSource
+           (the complete Java file). It runs your test once on the revision the bug was reported
+           against and tells you PASS, FAIL or NOCOMPILE with the output.
+           - NOCOMPILE: fix the errors using only the API it lists for that revision; check again.
+           - PASS: your test does not reproduce the bug; rewrite it closer to the report (its exact
+             input, its exact method) and check again.
+           - FAIL: read the failure. If it is the wrong behaviour the report describes, go to step 5.
+             If the test fails for another reason (its own mistake), fix it and check again.
+           You have at most 3 checks. If none fails for the reported reason, ABSTAIN and say why.
+        5. Call the action `find-bug-origin` with exactly the test source that failed in step 4.
 
-        After the action returns, tell the user the job has started and that the result will be
-        posted as a comment on the issue. Never invent a commit hash.
+        After find-bug-origin returns, tell the user the job has started and that the result will
+        be posted as a comment on the issue. Never invent a commit hash.
       conversationStarters:
         - Find where this bug came from
       actions:
         - get-bug-report
+        - check-test
         - find-bug-origin
   action:
     - key: get-bug-report
@@ -70,13 +83,42 @@ modules:
           type: string
           required: false
           description: Jira issue key. Defaults to the issue in context.
+    - key: check-test
+      name: Check test
+      function: check-test
+      actionVerb: GET
+      description: |
+        Runs a JUnit test once on the revision the bug was reported against and returns PASS, FAIL
+        or NOCOMPILE with the output (and the class's public API when it does not compile). Call it
+        before find-bug-origin; at most 3 times per issue.
+      inputs:
+        issueKey:
+          title: Issue key
+          type: string
+          required: false
+          description: Jira issue key of the bug report. Defaults to the issue in context.
+        testClass:
+          title: Test class
+          type: string
+          required: true
+          description: Fully qualified name of the test class, e.g. org.apache.commons.lang3.StringUtilsBugOriginTest
+        testMethod:
+          title: Test method
+          type: string
+          required: true
+          description: Name of the single test method, starting with "test".
+        testSource:
+          title: Test source
+          type: string
+          required: true
+          description: Complete Java source file of the test class.
     - key: find-bug-origin
       name: Find bug origin
       function: start-bisect
       actionVerb: GET
       description: |
         Starts a bisection that finds the commit which introduced the bug, using a JUnit test
-        that reproduces the bug. Returns at once; the result is posted as a comment on the issue.
+        that reproduces the bug. Only a test that check-test reported as FAIL is accepted. Returns at once; the result is posted as a comment on the issue.
       inputs:
         issueKey:
           title: Issue key
@@ -109,6 +151,9 @@ modules:
   function:
     - key: get-report
       handler: index.getBugReport
+    - key: check-test
+      handler: index.checkTest
+      timeoutSeconds: 55
     - key: start-bisect
       handler: index.startBisect
     - key: run-job

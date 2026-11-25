@@ -3,6 +3,10 @@
 POST /jobs        {"buggy": sha, "fixed": sha (optional), "test": "pkg.Class::method", "source": "<java>"}
                   -> 202 {"id": ...}; bisection runs in the background
 GET  /jobs/<id>   -> {"status": "running" | "done" | "error", "result": {...}, "log": [...]}
+POST /check       {"commit": sha, "test": "pkg.Class::method", "source": "<java>"}
+                  -> 200 {"result": PASS|FAIL|NOCOMPILE|ERROR, "output": "...", "api": [...]}
+                  runs the test once on one commit, synchronously (well under a minute), so the
+                  agent can see whether its test reproduces the bug before asking for a bisection
 GET  /health     -> ok
 
 Every /jobs call must carry a Forge Invocation Token (FIT) issued to our app: a JWT signed
@@ -28,7 +32,10 @@ import jwt  # PyJWT
 
 import sys
 sys.path.insert(0, "/opt/app/harness")
-from bisect_bic import bisect  # noqa: E402
+from bisect_bic import bisect, class_under_test  # noqa: E402
+from run_test import run  # noqa: E402
+import re
+import subprocess
 
 GIT = os.environ.get("RUNNER_GIT", "/opt/commons-lang.git")
 APP_ID = os.environ.get("FORGE_APP_ID", "")  # ari:cloud:ecosystem::app/<uuid>
@@ -58,14 +65,58 @@ def authorised(header: str | None) -> bool:
         return False
 
 
+def write_test(test: str, source: str) -> str:
+    cls = test.split("::")[0]
+    d = tempfile.mkdtemp(prefix="agenttest-")
+    path = Path(d) / "src/test/java" / (cls.replace(".", "/") + ".java")
+    path.parent.mkdir(parents=True)
+    path.write_text(source)
+    return d
+
+
+def public_api(commit: str, test: str, source: str, limit: int = 60) -> list[str]:
+    """Public method signatures of the class under test at commit, those the test calls first."""
+    cls = class_under_test(test)
+    if not cls:
+        return []
+    text = None
+    for name in (cls, cls.replace(".lang3.", ".lang.")):
+        for d in ("src/main/java", "src/java"):
+            r = subprocess.run(["git", "--git-dir", GIT, "show", f"{commit}:{d}/{name.replace('.', '/')}.java"],
+                               capture_output=True)
+            if r.returncode == 0:
+                text = r.stdout.decode("utf-8", "replace")
+                break
+        if text:
+            break
+    if text is None:
+        return [f"{cls} does not exist at {commit[:10]}"]
+    sigs = [" ".join(m.group(0).split()) for m in
+            re.finditer(r"public\s+(?:static\s+|final\s+|synchronized\s+)*[\w<>\[\],.? ]+?\s+\w+\s*\([^)]*\)", text)]
+    simple = cls.rsplit(".", 1)[-1]
+    sigs = [" ".join(m.group(0).split()) for m in
+            re.finditer(rf"public\s+{simple}\s*\([^)]*\)", text)] + sigs  # constructors
+    called = set(re.findall(r"\.(\w+)\s*\(", source)) | {simple}
+    first = [s for s in sigs if re.search(r"\s(\w+)\s*\(", s).group(1) in called]
+    rest = [s for s in sigs if s not in first]
+    return (first + rest)[:limit]
+
+
+def check(req: dict) -> dict:
+    d = write_test(req["test"], req["source"])
+    r = run(GIT, req["commit"], req["test"], d, timeout=30)
+    out = r.get("log_tail") or r.get("reason") or ""
+    out = re.sub(r"/(?:w|tmp)/[\w./-]*?(src/)", r"\1", out).replace("src/src/", "src/")
+    body = {"result": r["result"], "commit": req["commit"], "seconds": r.get("seconds"), "output": out[-3000:]}
+    if r["result"] == "NOCOMPILE":
+        body["api"] = public_api(req["commit"], req["test"], req["source"])
+    return body
+
+
 def run_job(job_id: str, req: dict) -> None:
     job = jobs[job_id]
     try:
-        cls = req["test"].split("::")[0]
-        d = tempfile.mkdtemp(prefix="agenttest-")
-        path = Path(d) / "src/test/java" / (cls.replace(".", "/") + ".java")
-        path.parent.mkdir(parents=True)
-        path.write_text(req["source"])
+        d = write_test(req["test"], req["source"])
         job["result"] = bisect(GIT, req["buggy"], req["fixed"], req["test"], d,
                                log=lambda m: job["log"].append(m))
         job["status"] = "done"
@@ -95,13 +146,26 @@ class Handler(BaseHTTPRequestHandler):
         self.send(404, {"error": "not found"})
 
     def do_POST(self) -> None:
-        if self.path != "/jobs":
+        if self.path not in ("/jobs", "/check"):
             return self.send(404, {"error": "not found"})
         if not authorised(self.headers.get("Authorization")):
             return self.send(401, {"error": "unauthorised"})
         length = int(self.headers.get("Content-Length", 0))
         if length > MAX_SOURCE:
             return self.send(413, {"error": "too large"})
+        if self.path == "/check":
+            try:
+                req = json.loads(self.rfile.read(length))
+                for k in ("commit", "test", "source"):
+                    assert isinstance(req.get(k), str) and req[k], k
+                assert re.fullmatch(r"[0-9a-f]{7,40}", req["commit"]), "commit"
+                assert re.fullmatch(r"[\w.$]+::test\w*", req["test"]), "test must be pkg.Class::testMethod"
+            except Exception as e:
+                return self.send(400, {"error": f"bad request: {e}"})
+            try:
+                return self.send(200, check(req))
+            except Exception as e:
+                return self.send(500, {"error": f"{type(e).__name__}: {e}"})
         try:
             req = json.loads(self.rfile.read(length))
             for k in ("buggy", "test", "source"):

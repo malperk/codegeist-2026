@@ -12,7 +12,10 @@ the result is an abstention: a test that does not separate buggy from fixed is n
 
 Confidence of the answer:
   high    the commit before the BIC passes the test
-  medium  the commit before the BIC cannot compile the test (bug born with the feature)
+  medium  the commit before the BIC cannot compile the test and the code the test uses was born
+          in the BIC (a new class or a new method, not code moved in from elsewhere)
+  low     the commit before the BIC cannot compile the test and the code may be older: the
+          class has history under another path, or the BIC deletes or renames source files
   abstain validation failed, or skipped commits make the boundary uncertain
 """
 
@@ -107,15 +110,34 @@ def bisect(git_dir: str, buggy: str, fixed: str, test: str, test_dir: str, log=N
     before = runs[chain[lo]]
     if before == "PASS":
         return result(answer=bic, confidence="high", previous_commit=chain[lo], previous_state=before)
-    # NOCOMPILE before the BIC means "bug born with the code" only if the class under test did
-    # not exist yet. If it existed, the test merely uses a newer API (a rename, a new method):
-    # the bug may be older, so the answer is not trustworthy (dev run LANG-710).
-    target = class_under_test(test)
-    if target and class_exists(git_dir, chain[lo], target):
-        return result(answer=bic, confidence="low", previous_commit=chain[lo], previous_state=before,
-                      reason=f"{target} already existed before this commit; the test only stops "
-                             "compiling because it uses a newer API, so the bug may be older")
-    return result(answer=bic, confidence="medium", previous_commit=chain[lo], previous_state=before)
+    conf, reason = born_or_moved(git_dir, chain[lo], bic, class_under_test(test))
+    return result(answer=bic, confidence=conf, previous_commit=chain[lo], previous_state=before,
+                  **({"reason": reason} if reason else {}))
+
+
+def born_or_moved(git_dir: str, prev: str, bic: str, target: str | None) -> tuple[str, str]:
+    """Confidence when the commit before the BIC cannot compile the test (rule v2).
+
+    The test compiles from the BIC on because the code it calls appears there. That code was
+    either born in the BIC (then the bug was born with it: medium) or moved in from elsewhere
+    (then the bug may be older: low). Moves are recognised without reading commit messages:
+    - the class under test is new at its path, but a file of that name, or its test, already
+      existed somewhere else in the tree (held-out control LANG-1039: "Moved from superpackage");
+    - the BIC deletes or renames main source files (dev case LANG-D4J-19: code moved from
+      EscapeUtils into StringEscapeUtils).
+    Rule v1 called every "class already existed" case low; on held-out run 1 those four answers
+    were all correct (new methods added to an existing class), so v1 was too cautious.
+    """
+    if not target:
+        return "low", "cannot tell which class the test is about"
+    if not class_exists(git_dir, prev, target) and history_elsewhere(git_dir, prev, target):
+        return "low", (f"{target} is new at this path but a file of that name already existed "
+                       "elsewhere: the code was moved, so the bug may be older")
+    moved = moved_sources(git_dir, bic)
+    if moved:
+        return "low", (f"this commit deletes or renames {len(moved)} source file(s) "
+                       f"(e.g. {moved[0]}): the code may have been moved in, so the bug may be older")
+    return "medium", ""
 
 
 def class_under_test(test: str) -> str | None:
@@ -138,6 +160,22 @@ def class_exists(git_dir: str, commit: str, cls: str) -> bool:
                               capture_output=True).returncode == 0:
                 return True
     return False
+
+
+def history_elsewhere(git_dir: str, commit: str, cls: str) -> bool:
+    """Does a file named like the class (or its test) exist anywhere in the tree at commit?"""
+    simple = cls.rsplit(".", 1)[-1]
+    files = subprocess.run(["git", "--git-dir", git_dir, "ls-tree", "-r", "--name-only", commit],
+                           capture_output=True, text=True, check=True).stdout.split("\n")
+    return any(f.endswith((f"/{simple}.java", f"/{simple}Test.java")) for f in files)
+
+
+def moved_sources(git_dir: str, commit: str) -> list[str]:
+    """Main (non-test) Java files that the commit deletes or renames away."""
+    out = subprocess.run(["git", "--git-dir", git_dir, "show", "-M", "--diff-filter=DR",
+                          "--name-only", "--format=", commit],
+                         capture_output=True, text=True, check=True).stdout.split()
+    return [f for f in out if f.endswith(".java") and f.startswith(("src/java/", "src/main/java/"))]
 
 
 if __name__ == "__main__":
