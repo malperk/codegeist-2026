@@ -30,3 +30,38 @@ Cloud Run bisection -> comment on the issue. Dev cases only; we tune on these.
   previous commit; otherwise the answer is "low" (counted as an abstention). Re-checked on the
   oracle dev runs: the 5 correct medium answers stay medium, the LANG-552 miss becomes low, and
   this run becomes low. Oracle dev: 6/9 exact, 0 confident wrong.
+
+## 2026-11-25 dev batch (zero human touch): `dev-2026-11-25.jsonl`
+Each case: driver creates the mirror issue -> Automation rule starts the agent -> result.
+
+| Case | Jira | Outcome | Confidence | Note |
+|---|---|---|---|---|
+| LANG-D4J-19 | LANG-710 | not confident | low | test uses the later name `unescapeHtml4` |
+| LANG-D4J-22 | LANG-662 | **exact** | high | |
+| LANG-D4J-26 | LANG-645 | **exact** | medium | |
+| LANG-D4J-28 | LANG-617 | abstain | - | agent test fails on the fixed commit too (invalid test) |
+| LANG-D4J-39 | LANG-552 | not confident | low | test uses a newer API |
+| LANG-D4J-52 | LANG-363 | abstain | - | agent test fails on the fixed commit too (invalid test) |
+| LANG-D4J-55 | LANG-315 | **exact** | medium | |
+| LANG-D4J-57 | LANG-304 | abstain | - | 106 commits do not build on JDK 8 (same as oracle) |
+| LANG-D4J-61 | LANG-294 | abstain | - | 106 commits do not build on JDK 8 (same as oracle) |
+
+Exact match 3/9, confident wrong 0/9, valid tests 7/9. Oracle ceiling on the same cases 6/9.
+Bisection with 4 parallel workers: 53-89 s (was 412 s sequential).
+
+## 2026-11-25 controls: `controls-2026-11-25.jsonl`
+- Corrected planted-wrong-fix controls (`CTRL-WRONGFIX2-*`, 3): 3/3 abstained.
+- Not-a-bug controls (6): 5/6 no confident answer (4 agent declined to start a job, 1 low).
+  **LANG-885 is a false positive**: the report is a question ("Am I missing anything?") and a
+  maintainer comment says the methods are not documented to throw. The agent still wrote a test
+  for the reporter's expectation; that behaviour really did change at `c404121` (2009 rewrite),
+  so the search named it with high confidence. The commit is where the behaviour began, but the
+  report is not a bug.
+- False-confidence rate on valid controls: **1/9**. The three original `CTRL-WRONGFIX-*` results
+  are excluded (badly designed, see BENCHMARK.md amendment).
+
+## Consequence for the held-out evaluation
+These 9 controls have now been seen and will be used for tuning the abstain decision, so they can
+no longer measure it fairly. Before the held-out run, a fresh set of not-a-bug controls will be
+drawn by the same seed rule from the 20 remaining "Not A Problem"/"Invalid" LANG issues and
+committed before it is run.

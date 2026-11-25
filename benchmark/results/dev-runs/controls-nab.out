@@ -1,0 +1,6 @@
+CTRL-NAB-LANG-589 CLANG-19 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-789 CLANG-20 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-850 CLANG-21 done low 7721acd0ef95 {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-861 CLANG-22 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-866 CLANG-23 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-885 CLANG-24 done high c40412197900 {'kind': 'not_a_bug', 'confident': True, 'false_confidence': True}
