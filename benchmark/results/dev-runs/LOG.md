@@ -77,3 +77,8 @@ committed before it is run.
 - LANG-363 again sent `"<https://script>"` instead of `"<\/script>"`, with `<redacted URL>` in the
   assertion message: Rovo appears to redact URL-like text in action inputs. Mitigation: the
   prompt now asks for slash sequences to be built by concatenation.
+
+## 2026-11-25 dev run: LANG-D4J-52 (LANG-363) after the URL rule — abstain
+String literals now arrive intact (built by concatenation). The test still fails on the fixed
+commit: it expects no escaping of single quotes, while escapeJavaScript does escape them. The
+validity check rejected it: abstention, not a wrong answer. Tuning stops here.
