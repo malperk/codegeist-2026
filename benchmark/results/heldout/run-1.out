@@ -1,0 +1,27 @@
+LANG-D4J-4 CLANG-44 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-6 CLANG-45 done high 2c1b5be14658 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-13 CLANG-46 done high b82ab99340a4 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-14 CLANG-47 done low 7cfa8a932869 {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-21 CLANG-48 done low 61cccd3e0a4c {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-31 CLANG-49 done low 41d242e9ea45 {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-40 CLANG-50 done low baff3dca7364 {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-43 CLANG-51 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-44 CLANG-52 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-45 CLANG-53 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-46 CLANG-54 done high c22d9d59e5b8 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-47 CLANG-55 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-49 CLANG-56 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-51 CLANG-57 done high d776d2688968 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-53 CLANG-58 done high 9cbf70d82285 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-54 CLANG-59 done abstain ff3e1211296c {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-60 CLANG-60 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-64 CLANG-61 done medium 4dcfc2fbb1f5 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+HCTRL-NAB-LANG-394 CLANG-62 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+HCTRL-NAB-LANG-770 CLANG-63 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+HCTRL-NAB-LANG-815 CLANG-64 done high 5fb6521ab990 {'kind': 'not_a_bug', 'confident': True, 'false_confidence': True}
+HCTRL-NAB-LANG-820 CLANG-65 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+HCTRL-NAB-LANG-988 CLANG-66 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+HCTRL-NAB-LANG-1039 CLANG-67 done medium e4da822d419c {'kind': 'not_a_bug', 'confident': True, 'false_confidence': True}
+HCTRL-WRONGFIX-LANG-D4J-6 CLANG-68 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+HCTRL-WRONGFIX-LANG-D4J-4 CLANG-69 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+HCTRL-WRONGFIX-LANG-D4J-44 CLANG-70 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
