@@ -51,8 +51,8 @@ def jira_time(s: str) -> datetime:
 
 
 def lookup(case_id: str) -> dict:
-    for name in ("cases.csv", "controls.csv", "controls_heldout.csv"):
-        for row in csv.DictReader(open(ROOT / "benchmark" / name)):
+    for path in [ROOT / "benchmark/cases.csv", *sorted((ROOT / "benchmark").glob("controls*.csv"))]:
+        for row in csv.DictReader(open(path)):
             if row.get("case_id", row.get("control_id")) == case_id:
                 return row
     raise SystemExit(f"unknown case {case_id}")

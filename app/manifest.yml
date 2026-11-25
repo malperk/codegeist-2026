@@ -85,7 +85,7 @@ modules:
           description: Jira issue key. Defaults to the issue in context.
     - key: check-test
       name: Check test
-      function: check-test
+      function: check-test-fn
       actionVerb: GET
       description: |
         Runs a JUnit test once on the revision the bug was reported against and returns PASS, FAIL
@@ -151,9 +151,8 @@ modules:
   function:
     - key: get-report
       handler: index.getBugReport
-    - key: check-test
+    - key: check-test-fn
       handler: index.checkTest
-      timeoutSeconds: 55
     - key: start-bisect
       handler: index.startBisect
     - key: run-job
@@ -170,6 +169,7 @@ permissions:
   scopes:
     - read:jira-work
     - write:jira-work
+    - read:jira-user
     - storage:app
 app:
   runtime:

@@ -74,3 +74,35 @@ fresh set, never run before this commit: 6 not-a-bug controls drawn by sha256 or
 `codegeist-2026-controls-heldout` from the 20 "Not A Problem"/"Invalid" LANG bugs (2008-2014) not
 used as dev controls, and 3 planted-wrong-fix controls on held-out cases chosen with the same seed,
 using the corrected rule (claimed fix strictly between the BIC and the buggy commit).
+
+## Run 2 (pre-registered 2026-11-25, before any run-2 result)
+Every change below was designed **after** seeing held-out run 1, so run 2 on the same 18 cases is
+a re-run after fixing published misses, not a fresh held-out result. Fresh evidence will come from
+the new controls below and from a second, unrelated codebase.
+
+Changes (git tag `run-2` freezes them):
+1. **`check-test` action.** Before asking for a bisection, the agent runs its test once on the
+   reported revision and sees PASS / FAIL / NOCOMPILE with the output, plus the public API of the
+   class under test when it does not compile. At most 3 checks per issue, and `find-bug-origin`
+   refuses any test that did not FAIL a check; both limits are enforced in code. Only the reported
+   revision is used: the benchmark's fixed commit is never shown to the agent, as a real user would
+   not have one. Run 1 had 5 of its 7 invalid tests fail on the reported revision itself
+   (3 NOCOMPILE, 2 PASS), which this signal can catch; the other 2 (FAIL on both buggy and fixed)
+   it cannot.
+2. **Author roles on comments.** Each mirrored comment is labelled `[project committer]` if its
+   author had committed to the repository before writing it (git history only), else
+   `[not a committer then]`. In the app, a real Jira comment is labelled `[project member]` if its
+   author may resolve issues in the project. The prompt gives a member's "not a bug" priority.
+3. **Confidence rule v2** (`harness/bisect_bic.py`, `born_or_moved`). When the commit before the
+   answer cannot compile the test: `medium` if the code was born in the answer commit, `low` if it
+   was moved in (the class has a same-named file elsewhere, or the commit deletes or renames
+   source files). Rule v1 made every "class already existed" case `low`.
+   Re-applying v2 to recorded results (`rescore_confidence.py`, no re-runs) gives, post hoc:
+   held-out run 1 9/18 exact instead of 6/18 (four `low` become correct `medium`, D4J-64 drops to
+   `low`); the false `medium` on control LANG-1039 drops to `low`; on dev, D4J-39 becomes a
+   confident wrong answer and control LANG-850 a false `medium`. These numbers are not claims.
+
+Cases: the 18 held-out cases. Controls: `controls_run2.csv`, 6 not-a-bug and 3 planted-wrong-fix,
+drawn by `draw_controls.py` with seed `codegeist-2026-controls-run2`, excluding every control used
+before (the script reproduces the earlier draws exactly). Metrics as above, plus the number of
+checks per case and test validity at the first check versus the final one.
