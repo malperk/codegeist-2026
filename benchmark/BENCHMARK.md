@@ -67,3 +67,10 @@ Replacement: `CTRL-WRONGFIX2-*` (same three dev cases). The claimed fix is the m
 first-parent history strictly between the BIC and the buggy commit, where the bug is present, so
 a correct test fails on it and the only correct outcome is an abstention. This rule was written
 after seeing the first results; it is reported as an amendment, not as part of the original freeze.
+
+## Held-out controls: `controls_heldout.csv` (added 2026-11-25, before any run on them)
+The dev controls have been used to tune the abstain decision, so the held-out evaluation uses a
+fresh set, never run before this commit: 6 not-a-bug controls drawn by sha256 order with seed
+`codegeist-2026-controls-heldout` from the 20 "Not A Problem"/"Invalid" LANG bugs (2008-2014) not
+used as dev controls, and 3 planted-wrong-fix controls on held-out cases chosen with the same seed,
+using the corrected rule (claimed fix strictly between the BIC and the buggy commit).
