@@ -65,3 +65,15 @@ These 9 controls have now been seen and will be used for tuning the abstain deci
 no longer measure it fairly. Before the held-out run, a fresh set of not-a-bug controls will be
 drawn by the same seed rule from the 20 remaining "Not A Problem"/"Invalid" LANG issues and
 committed before it is run.
+
+## 2026-11-25 dev round 2 (new triage and assertion rules): `dev2-2026-11-25.jsonl`
+- Dev cases: the same 3/9 exact (LANG-662 high, LANG-645 medium, LANG-315 medium), 0 confident
+  wrong. The stricter not-a-bug triage did not make the agent drop any real bug.
+- Controls: 9/9 no confident answer (3 corrected wrong-fix abstained in validation; 6 not-a-bug:
+  the agent declined to start a job, each with a written reason on the issue, e.g. LANG-885:
+  "ABSTAIN: A project member's comment indicates the behavior is not documented to throw
+  exceptions"). These controls were used for tuning, so this 0/9 is not a fair measure; the
+  held-out controls (`controls_heldout.csv`, frozen in a458ce4) are.
+- LANG-363 again sent `"<https://script>"` instead of `"<\/script>"`, with `<redacted URL>` in the
+  assertion message: Rovo appears to redact URL-like text in action inputs. Mitigation: the
+  prompt now asks for slash sequences to be built by concatenation.

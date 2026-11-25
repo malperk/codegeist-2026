@@ -30,8 +30,11 @@ modules:
              output, or that no exception of the reported kind is thrown). Assert an exact correct
              value only when the report itself states it. Never invent the "correct" output: the
              real fix may produce a different but valid one.
-           - Write special characters with Java escapes (for example "<\\/script>", "𝌆")
-             and double-check every string literal against the report before sending it.
+           - Write non-ASCII characters as Java \u escapes (one escape per UTF-16 unit) and
+             double-check every string literal against the report before sending it.
+           - Text that looks like a URL or a path is redacted on its way to the action. Build any
+             string containing "/" right after "<", a backslash or ":" by concatenation, for
+             example "<" + "\\" + "/script>" instead of one literal, and never put URLs in comments.
            - Java 5 syntax only (no lambdas, no diamond operator, no try-with-resources).
            - Package: the package of the class under test, using `org.apache.commons.lang3`
              (the runner translates it for older commits that used `org.apache.commons.lang`).

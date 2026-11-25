@@ -1,0 +1,18 @@
+LANG-D4J-19 CLANG-25 done low 0714795b6fd2 {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-22 CLANG-26 done high deae2ba23824 {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-26 CLANG-27 done medium a99f7965b34b {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-28 CLANG-28 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-39 CLANG-29 done low 3b7ca1d4a226 {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-52 CLANG-30 done abstain  {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-55 CLANG-31 done medium 4036dc881d3f {'kind': 'case', 'confident': True, 'exact_match': True, 'confident_wrong': False}
+LANG-D4J-57 CLANG-32 done abstain ff3e1211296c {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+LANG-D4J-61 CLANG-33 done abstain ff3e1211296c {'kind': 'case', 'confident': False, 'exact_match': False, 'confident_wrong': False}
+CTRL-WRONGFIX2-LANG-D4J-22 CLANG-34 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+CTRL-WRONGFIX2-LANG-D4J-19 CLANG-35 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+CTRL-WRONGFIX2-LANG-D4J-28 CLANG-36 done abstain  {'kind': 'planted_wrong_fix', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-589 CLANG-37 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-789 CLANG-38 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-850 CLANG-39 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-861 CLANG-40 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-866 CLANG-41 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
+CTRL-NAB-LANG-885 CLANG-42 none abstain  {'kind': 'not_a_bug', 'confident': False, 'false_confidence': False}
