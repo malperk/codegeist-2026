@@ -82,6 +82,13 @@ function describe(result, url) {
   if (result.confidence === 'abstain') {
     return [`Bug Origin abstains: ${result.reason}.`, `Evidence (${result.runs} test runs): ${ev}`];
   }
+  if (result.confidence === 'low') {
+    return [
+      `Bug Origin is not confident. The test first runs at commit ${result.answer.slice(0, 12)}, but ${result.reason}.`,
+      'Treat this as a lower bound, not as the origin of the bug.',
+      `Test: ${result.test}. ${result.runs} test runs in ${result.seconds} s. Evidence: ${ev}`,
+    ];
+  }
   const why = result.confidence === 'high'
     ? `The test passes on the commit before it (${result.previous_commit.slice(0, 12)}) and fails from this commit on.`
     : `The code under test did not exist before this commit (the test cannot compile on ${result.previous_commit.slice(0, 12)}), so the bug was born with it.`;

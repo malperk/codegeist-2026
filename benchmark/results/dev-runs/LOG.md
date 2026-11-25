@@ -18,3 +18,15 @@ Cloud Run bisection -> comment on the issue. Dev cases only; we tune on these.
 - Bisection: answer `deae2ba23824` = published BIC; previous commit PASS -> confidence **high**.
   66 test runs, 412 s on Cloud Run (the same bisection took 87 s on a laptop: to optimise).
 - Human touches: one chat message ("Find where this bug came from").
+
+## 2026-11-25 run 3: LANG-D4J-19 (LANG-710), mirror CLANG-2 — miss (medium), zero touch
+- Started by the Automation rule "Bug Origin on new bug" one second after the issue was
+  created (audit log 852f6bcf-8567-4e74-9b4f-39bfcd27b1f1). No human touch.
+- Agent test: `StringEscapeUtilsBugOriginTest`, calls `StringEscapeUtils.unescapeHtml4("&#03")`.
+- Answer `0714795b6fd2` (medium); expected `c404121979002`. 14 test runs, 87 s.
+- Cause: `unescapeHtml4` is a later name of `unescapeHtml`. Before the rename the test cannot
+  compile, and the search read NOCOMPILE as "the code did not exist yet".
+- Fix (dev tuning): "medium" now requires that the class under test did not exist on the
+  previous commit; otherwise the answer is "low" (counted as an abstention). Re-checked on the
+  oracle dev runs: the 5 correct medium answers stay medium, the LANG-552 miss becomes low, and
+  this run becomes low. Oracle dev: 6/9 exact, 0 confident wrong.

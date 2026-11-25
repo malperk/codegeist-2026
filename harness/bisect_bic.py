@@ -105,8 +105,39 @@ def bisect(git_dir: str, buggy: str, fixed: str, test: str, test_dir: str, log=N
     if lo < 0:
         return result(answer=bic, confidence="abstain", reason="test fails at the first commit")
     before = runs[chain[lo]]
-    return result(answer=bic, confidence="high" if before == "PASS" else "medium",
-                  previous_commit=chain[lo], previous_state=before)
+    if before == "PASS":
+        return result(answer=bic, confidence="high", previous_commit=chain[lo], previous_state=before)
+    # NOCOMPILE before the BIC means "bug born with the code" only if the class under test did
+    # not exist yet. If it existed, the test merely uses a newer API (a rename, a new method):
+    # the bug may be older, so the answer is not trustworthy (dev run LANG-710).
+    target = class_under_test(test)
+    if target and class_exists(git_dir, chain[lo], target):
+        return result(answer=bic, confidence="low", previous_commit=chain[lo], previous_state=before,
+                      reason=f"{target} already existed before this commit; the test only stops "
+                             "compiling because it uses a newer API, so the bug may be older")
+    return result(answer=bic, confidence="medium", previous_commit=chain[lo], previous_state=before)
+
+
+def class_under_test(test: str) -> str | None:
+    """org.x.FooBugOriginTest::m or org.x.FooTest::m -> org.x.Foo (naming convention)."""
+    cls = test.split("::")[0]
+    for suffix in ("BugOriginTest", "Test"):
+        if cls.endswith(suffix) and len(cls) > len(suffix):
+            return cls[: -len(suffix)]
+    return None
+
+
+def class_exists(git_dir: str, commit: str, cls: str) -> bool:
+    """Does the class's source file exist at commit, under either package name and layout?"""
+    names = {cls, cls.replace("org.apache.commons.lang3.", "org.apache.commons.lang."),
+             cls.replace("org.apache.commons.lang.", "org.apache.commons.lang3.")}
+    for name in names:
+        for d in ("src/main/java", "src/java"):
+            path = f"{d}/{name.replace('.', '/')}.java"
+            if subprocess.run(["git", "--git-dir", git_dir, "cat-file", "-e", f"{commit}:{path}"],
+                              capture_output=True).returncode == 0:
+                return True
+    return False
 
 
 if __name__ == "__main__":
