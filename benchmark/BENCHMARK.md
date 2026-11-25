@@ -55,3 +55,15 @@ failure and is reported as a false positive.
   so the agent must report that it cannot show test validity instead of claiming success.
 
 Extra metric: **false-confidence rate** = confident answers on controls / 9.
+
+## Amendment 2026-11-25: planted-wrong-fix controls were badly designed
+The three `CTRL-WRONGFIX-*` controls replaced the fixed commit with another case's fix that does
+not contain the real fix. Two of those commits (and possibly all three) are *older than the
+bug-inducing commit*, so the bug is absent there and the test passes or cannot compile: they do
+not test what they claim to. Their first results are kept unchanged in
+`results/dev-runs/dev-2026-11-25.jsonl` (one high-confidence answer, two abstentions that are not
+evidence) and are excluded from the false-confidence rate.
+Replacement: `CTRL-WRONGFIX2-*` (same three dev cases). The claimed fix is the middle commit of the
+first-parent history strictly between the BIC and the buggy commit, where the bug is present, so
+a correct test fails on it and the only correct outcome is an abstention. This rule was written
+after seeing the first results; it is reported as an amendment, not as part of the original freeze.
