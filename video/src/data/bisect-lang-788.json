@@ -1,0 +1,231 @@
+{
+ "issue": "LANG-788",
+ "total": 3274,
+ "answer": "b82ab99",
+ "answerIndex": 3059,
+ "subject": "Applying Sven Ludwig's patch from LANG-626. This modifies the SerializationUtils.clone method to use the threadContextLoader if it is unable to find a class using the object's current classloader. This should (hopefully) help with Weblogic and Tomcat situations where Lang is outside the web-inf for some reason (likely user error with Tomcat, by design for Weblogic)",
+ "seconds": 101.7,
+ "runs": [
+  {
+   "i": 3049,
+   "sha": "0154a74",
+   "state": "PASS"
+  },
+  {
+   "i": 3116,
+   "sha": "03bcf46",
+   "state": "FAIL"
+  },
+  {
+   "i": 3011,
+   "sha": "137d5f6",
+   "state": "PASS"
+  },
+  {
+   "i": 2618,
+   "sha": "26afc62",
+   "state": "PASS"
+  },
+  {
+   "i": 2880,
+   "sha": "329b257",
+   "state": "PASS"
+  },
+  {
+   "i": 3038,
+   "sha": "42dd1e1",
+   "state": "PASS"
+  },
+  {
+   "i": 3054,
+   "sha": "64dd0a0",
+   "state": "PASS"
+  },
+  {
+   "i": 3057,
+   "sha": "656312f",
+   "state": "PASS"
+  },
+  {
+   "i": 2749,
+   "sha": "6566784",
+   "state": "PASS"
+  },
+  {
+   "i": 3064,
+   "sha": "6a14e22",
+   "state": "FAIL"
+  },
+  {
+   "i": 654,
+   "sha": "6ed0e0b",
+   "state": "NOCOMPILE"
+  },
+  {
+   "i": 3273,
+   "sha": "81797ed",
+   "state": "FAIL"
+  },
+  {
+   "i": 1309,
+   "sha": "96f12d3",
+   "state": "ERROR"
+  },
+  {
+   "i": 3058,
+   "sha": "9908144",
+   "state": "PASS"
+  },
+  {
+   "i": 3055,
+   "sha": "a7fe1f5",
+   "state": "PASS"
+  },
+  {
+   "i": 3090,
+   "sha": "b569409",
+   "state": "FAIL"
+  },
+  {
+   "i": 3059,
+   "sha": "b82ab99",
+   "state": "FAIL"
+  },
+  {
+   "i": 3142,
+   "sha": "b948627",
+   "state": "FAIL"
+  },
+  {
+   "i": 3056,
+   "sha": "d94ef57",
+   "state": "PASS"
+  },
+  {
+   "i": 1963,
+   "sha": "da46e86",
+   "state": "NOCOMPILE"
+  },
+  {
+   "i": 3044,
+   "sha": "eac36c6",
+   "state": "PASS"
+  }
+ ],
+ "rounds": [
+  {
+   "lo": -1,
+   "hi": 3273,
+   "probes": [
+    {
+     "i": 654,
+     "state": "NOCOMPILE"
+    },
+    {
+     "i": 1309,
+     "state": "ERROR"
+    },
+    {
+     "i": 1963,
+     "state": "NOCOMPILE"
+    },
+    {
+     "i": 2618,
+     "state": "PASS"
+    }
+   ]
+  },
+  {
+   "lo": 2618,
+   "hi": 3273,
+   "probes": [
+    {
+     "i": 2749,
+     "state": "PASS"
+    },
+    {
+     "i": 2880,
+     "state": "PASS"
+    },
+    {
+     "i": 3011,
+     "state": "PASS"
+    },
+    {
+     "i": 3142,
+     "state": "FAIL"
+    }
+   ]
+  },
+  {
+   "lo": 3011,
+   "hi": 3142,
+   "probes": [
+    {
+     "i": 3038,
+     "state": "PASS"
+    },
+    {
+     "i": 3064,
+     "state": "FAIL"
+    },
+    {
+     "i": 3090,
+     "state": "FAIL"
+    },
+    {
+     "i": 3116,
+     "state": "FAIL"
+    }
+   ]
+  },
+  {
+   "lo": 3038,
+   "hi": 3064,
+   "probes": [
+    {
+     "i": 3044,
+     "state": "PASS"
+    },
+    {
+     "i": 3049,
+     "state": "PASS"
+    },
+    {
+     "i": 3054,
+     "state": "PASS"
+    },
+    {
+     "i": 3059,
+     "state": "FAIL"
+    }
+   ]
+  },
+  {
+   "lo": 3054,
+   "hi": 3059,
+   "probes": [
+    {
+     "i": 3055,
+     "state": "PASS"
+    },
+    {
+     "i": 3056,
+     "state": "PASS"
+    },
+    {
+     "i": 3057,
+     "state": "PASS"
+    },
+    {
+     "i": 3058,
+     "state": "PASS"
+    }
+   ]
+  }
+ ],
+ "final": {
+  "lo": 3058,
+  "hi": 3059
+ }
+}
