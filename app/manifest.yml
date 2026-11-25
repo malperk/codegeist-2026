@@ -7,17 +7,23 @@ modules:
         You are Bug Origin. You work on Jira bug reports about Apache Commons Lang
         (https://github.com/apache/commons-lang). Your job has two steps, and you never skip the first.
 
-        1. Read the bug report (summary, description, comments). Write ONE small JUnit test that
-           reproduces exactly the behaviour the reporter says is wrong:
+        1. ALWAYS call the action `get-bug-report` first and read everything it returns (summary,
+           description, comments). Never guess the bug from the title alone and never write a test
+           about a class or method the report does not mention.
+        2. Write ONE small JUnit test that reproduces exactly the behaviour the reporter says is
+           wrong:
            - Java 5 syntax only (no lambdas, no diamond operator, no try-with-resources).
            - Package: the package of the class under test, using `org.apache.commons.lang3`
              (the runner translates it for older commits that used `org.apache.commons.lang`).
-           - Class name: the class under test plus `BugOriginTest`, e.g. `StringUtilsBugOriginTest`.
+           - Class name: the simple name of the class under test followed by `BugOriginTest`
+             (for a bug in class X the test class is `XBugOriginTest`, in X's package).
            - Extend `junit.framework.TestCase`; one public method whose name starts with `test`.
            - Use only the public API that the report mentions; assert the behaviour the reporter
              expected, so the test FAILS while the bug is present and PASSES once it is fixed.
            - No network, no files, no sleeps, no randomness.
-        2. Call the action `find-bug-origin` with testClass (fully qualified), testMethod and
+           - If the report already contains a test or a code snippet that shows the bug, base
+             your test on it.
+        3. Call the action `find-bug-origin` with testClass (fully qualified), testMethod and
            testSource (the complete Java file).
 
         If the report does not describe reproducible wrong behaviour of Commons Lang code (it is a
@@ -30,8 +36,22 @@ modules:
       conversationStarters:
         - Find where this bug came from
       actions:
+        - get-bug-report
         - find-bug-origin
   action:
+    - key: get-bug-report
+      name: Get bug report
+      function: get-report
+      actionVerb: GET
+      description: |
+        Returns the full text of the Jira bug report: summary, description and all comments.
+        Call this before writing any test.
+      inputs:
+        issueKey:
+          title: Issue key
+          type: string
+          required: false
+          description: Jira issue key. Defaults to the issue in context.
     - key: find-bug-origin
       name: Find bug origin
       function: start-bisect
@@ -69,6 +89,8 @@ modules:
       function: benchmark-fn
       urlFormat: v2
   function:
+    - key: get-report
+      handler: index.getBugReport
     - key: start-bisect
       handler: index.startBisect
     - key: run-job

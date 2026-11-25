@@ -34,6 +34,21 @@ async function comment(issueKey, paragraphs) {
   if (!res.ok) console.error(`comment on ${issueKey} failed: ${res.status} ${await res.text()}`);
 }
 
+/** Rovo action: the full text of the bug report, so the agent never works from the title alone. */
+export async function getBugReport(payload) {
+  const issueKey = payload.issueKey || payload.context?.jira?.issueKey;
+  if (!issueKey) return 'No issue key: open the agent from a Jira issue or pass issueKey.';
+  const res = await api.asApp().requestJira(
+    route`/rest/api/2/issue/${issueKey}?fields=summary,description,comment,issuetype`);
+  if (!res.ok) return `Could not read ${issueKey}: ${res.status}`;
+  const { fields } = await res.json();
+  const comments = (fields.comment?.comments || [])
+    .filter((c) => !/^Bug Origin/.test(c.body || ''))
+    .map((c) => `Comment by ${c.author?.displayName} (${c.created?.slice(0, 10)}):\n${c.body}`);
+  return [`Issue ${issueKey} (${fields.issuetype?.name})`, `Summary: ${fields.summary}`,
+    `Description:\n${fields.description || '(none)'}`, ...comments].join('\n\n');
+}
+
 /** Rovo action: validate the request, queue the job, return at once (actions have 55 s). */
 export async function startBisect(payload) {
   const issueKey = payload.issueKey || payload.context?.jira?.issueKey;
