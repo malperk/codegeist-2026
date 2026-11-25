@@ -6,7 +6,8 @@ States per commit come from run_test.run():
   NOCOMPILE -> the code under test does not exist yet; treated as "good" (feature absent)
   ERROR     -> infrastructure problem; the commit is skipped, like `git bisect skip`
 
-Before searching, the test must FAIL on the buggy commit and PASS on the fixed commit. If not,
+Before searching, the test must FAIL on the buggy commit and, when a fixed commit is known,
+PASS on it. If not,
 the result is an abstention: a test that does not separate buggy from fixed is no evidence.
 
 Confidence of the answer:
@@ -51,9 +52,11 @@ def bisect(git_dir: str, buggy: str, fixed: str, test: str, test_dir: str, log=N
                   evidence={c[:12]: s for c, s in runs.items()})
         return kw
 
-    if state(buggy) != "FAIL" or state(fixed) != "PASS":
+    # Without a fixed commit (real use) the test must at least fail where the bug was reported.
+    if state(buggy) != "FAIL" or (fixed and state(fixed) != "PASS"):
         return result(answer=None, confidence="abstain",
-                      reason=f"test does not separate buggy ({runs[buggy]}) from fixed ({runs.get(fixed)})")
+                      reason=f"test does not reproduce the bug (reported revision: {runs[buggy]}"
+                             + (f", fixed revision: {runs.get(fixed)}" if fixed else "") + ")")
 
     chain = first_parent_chain(git_dir, buggy)
     # Invariant: chain[lo] is good (or before the start of history), chain[hi] is bad.

@@ -1,6 +1,6 @@
 """HTTP front end of the runner, for Cloud Run.
 
-POST /jobs        {"buggy": sha, "fixed": sha, "test": "pkg.Class::method", "source": "<java>"}
+POST /jobs        {"buggy": sha, "fixed": sha (optional), "test": "pkg.Class::method", "source": "<java>"}
                   -> 202 {"id": ...}; bisection runs in the background
 GET  /jobs/<id>   -> {"status": "running" | "done" | "error", "result": {...}, "log": [...]}
 GET  /health     -> ok
@@ -104,8 +104,9 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(413, {"error": "too large"})
         try:
             req = json.loads(self.rfile.read(length))
-            for k in ("buggy", "fixed", "test", "source"):
+            for k in ("buggy", "test", "source"):
                 assert isinstance(req.get(k), str) and req[k], k
+            req["fixed"] = req.get("fixed") or ""  # optional: only the benchmark knows it
             assert "::" in req["test"], "test must be pkg.Class::method"
         except Exception as e:
             return self.send(400, {"error": f"bad request: {e}"})
