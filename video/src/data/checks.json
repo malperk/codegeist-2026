@@ -1,0 +1,22 @@
+{
+ "case": "LANG-D4J-45",
+ "issue": "CLANG-82",
+ "checks": [
+  {
+   "result": "NOCOMPILE",
+   "seconds": 4.2,
+   "line": "src/test/org/apache/commons/lang/text/WordUtilsBugOriginTest.java:13: error: cannot find symbol"
+  },
+  {
+   "result": "NOCOMPILE",
+   "seconds": 4.3,
+   "line": "src/test/org/apache/commons/lang/text/WordUtilsBugOriginTest.java:13: error: cannot find symbol"
+  },
+  {
+   "result": "FAIL",
+   "seconds": 4.7,
+   "line": "FAILURE testAbbreviateLowerGreaterThanLength(org.apache.commons.lang.WordUtilsBugOriginTest): WordUtils.abbreviate threw StringIndexOutOfBoundsException when lower > str.length()"
+  }
+ ],
+ "source": "benchmark/results/run2/run-2.jsonl"
+}

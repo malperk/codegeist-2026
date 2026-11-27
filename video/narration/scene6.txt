@@ -1,0 +1,1 @@
+The answer: a patch from August 2011, six months before the report. It was itself a fix, for another user's class loading problem. One fix quietly caused the next bug. Now the team knows where it came from, and which kind of change to review harder.

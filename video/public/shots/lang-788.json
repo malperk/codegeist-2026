@@ -1,0 +1,25 @@
+{
+ "url": "https://issues.apache.org/jira/browse/LANG-788",
+ "width": 3200,
+ "height": 1800,
+ "boxes": {
+  "summary": [
+   706,
+   308,
+   2050,
+   68
+  ],
+  "test": [
+   640,
+   1012,
+   1624,
+   520
+  ],
+  "created": [
+   2654,
+   906,
+   506,
+   40
+  ]
+ }
+}

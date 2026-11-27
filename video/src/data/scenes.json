@@ -1,0 +1,96 @@
+[
+ {
+  "id": "scene1",
+  "audio": "audio/scene1.wav",
+  "seconds": 18.38,
+  "captions": [
+   "February 2012.",
+   "A developer clones an object with Apache Commons Lang, and it crashes.",
+   "The object only holds int dot class.",
+   "The report even includes the test that fails.",
+   "The maintainer can fix it.",
+   "But every maintainer also wants to know:",
+   "which change broke this, and when?"
+  ]
+ },
+ {
+  "id": "scene2",
+  "audio": "audio/scene2.wav",
+  "seconds": 14.12,
+  "captions": [
+   "By then the project had more than three thousand commits.",
+   "Finding the culprit by hand means building old versions, one by one, and running a test on each.",
+   "So usually nobody does it, and the same kind of mistake comes back."
+  ]
+ },
+ {
+  "id": "scene3",
+  "audio": "audio/scene3.wav",
+  "seconds": 22.8,
+  "captions": [
+   "Bug Origin is a Rovo agent that lives in Jira.",
+   "When a bug is filed, an Automation rule wakes it up.",
+   "Nobody touches anything from here.",
+   "The agent reads the whole report, including who said what, and decides whether it is a bug at all.",
+   "Then it writes a small test that reproduces it, and runs it once on the reported version, to make sure the test really fails there."
+  ]
+ },
+ {
+  "id": "scene4",
+  "audio": "audio/scene4.wav",
+  "seconds": 12.78,
+  "captions": [
+   "If the test does not compile, the agent sees the error and the real API of that version, and fixes it.",
+   "It gets three tries, enforced in code.",
+   "A test that never failed is never trusted."
+  ]
+ },
+ {
+  "id": "scene5",
+  "audio": "audio/scene5.wav",
+  "seconds": 17.6,
+  "captions": [
+   "Then the runner on Google Cloud searches the history with that test.",
+   "Four old versions at a time, built and tested in parallel.",
+   "Pass, fail, pass.",
+   "Five rounds, twenty-two test runs, a hundred seconds.",
+   "The test passes on the commit before, and fails from this one on."
+  ]
+ },
+ {
+  "id": "scene6",
+  "audio": "audio/scene6.wav",
+  "seconds": 16.2,
+  "captions": [
+   "The answer:",
+   "a patch from August 2011, six months before the report.",
+   "It was itself a fix, for another user's class loading problem.",
+   "One fix quietly caused the next bug.",
+   "Now the team knows where it came from, and which kind of change to review harder."
+  ]
+ },
+ {
+  "id": "scene7",
+  "audio": "audio/scene7.wav",
+  "seconds": 26.52,
+  "captions": [
+   "We measured it before we believed it:",
+   "real Commons Lang bugs whose origins are known, and reports that are not bugs at all, fixed in advance.",
+   "The first run found the exact commit for six bugs out of eighteen.",
+   "We published every miss, fixed the causes, and ran again:",
+   "twelve out of eighteen.",
+   "When it was confident, it was right twelve times out of thirteen.",
+   "It abstained when it could not be sure, and fooled itself once, on a renamed method, which we now know how to catch."
+  ]
+ },
+ {
+  "id": "scene8",
+  "audio": "audio/scene8.wav",
+  "seconds": 8.57,
+  "captions": [
+   "Bug Origin.",
+   "File a bug, and get its origin, with the evidence attached.",
+   "Every number in this video links to the run that produced it."
+  ]
+ }
+]

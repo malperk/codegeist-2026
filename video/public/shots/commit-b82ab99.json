@@ -1,0 +1,25 @@
+{
+ "url": "https://github.com/apache/commons-lang/commit/b82ab99340a46e28320d6b48dd1d5e6fc3bce98e",
+ "width": 3200,
+ "height": 1800,
+ "boxes": {
+  "title": [
+   48,
+   384,
+   392,
+   74
+  ],
+  "date": [
+   48,
+   477,
+   456,
+   40
+  ],
+  "message": [
+   48,
+   552,
+   3104,
+   200
+  ]
+ }
+}

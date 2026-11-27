@@ -1,0 +1,1 @@
+February 2012. A developer clones an object with Apache Commons Lang, and it crashes. The object only holds int dot class. The report even includes the test that fails. The maintainer can fix it. But every maintainer also wants to know: which change broke this, and when?

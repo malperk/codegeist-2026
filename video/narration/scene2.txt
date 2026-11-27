@@ -1,0 +1,1 @@
+By then the project had more than three thousand commits. Finding the culprit by hand means building old versions, one by one, and running a test on each. So usually nobody does it, and the same kind of mistake comes back.

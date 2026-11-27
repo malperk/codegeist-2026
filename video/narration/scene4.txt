@@ -1,0 +1,1 @@
+If the test does not compile, the agent sees the error and the real API of that version, and fixes it. It gets three tries, enforced in code. A test that never failed is never trusted.

@@ -1,0 +1,22 @@
+{
+ "run1": {
+  "cases": 18,
+  "exact": 6,
+  "confident": 6,
+  "confidentWrong": 0,
+  "controls": 9,
+  "falseConfidence": 2
+ },
+ "run2": {
+  "cases": 18,
+  "exact": 12,
+  "confident": 13,
+  "confidentWrong": 1,
+  "controls": 9,
+  "falseConfidence": 1
+ },
+ "sources": [
+  "benchmark/results/heldout/heldout-run-1.jsonl",
+  "benchmark/results/run2/run-2.jsonl"
+ ]
+}

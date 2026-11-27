@@ -15,12 +15,14 @@ const INTRO = 75;     // title
 const ROUND = 60;     // per search round: zoom, then probes land
 const OUTRO = 120;    // answer card
 export const bisectionFrames = INTRO + run.rounds.length * ROUND + OUTRO;
+export const searchFrames = run.rounds.length * ROUND + OUTRO;
 
 const W = 1600;       // timeline width in px
 const X0 = 160;
 
-export const Bisection = () => {
-  const frame = useCurrentFrame();
+export const Bisection = ({ mode = 'all' }: { mode?: 'all' | 'intro' | 'search' }) => {
+  const raw = useCurrentFrame();
+  const frame = mode === 'search' ? raw + INTRO : mode === 'intro' ? Math.min(raw, INTRO - 12) : raw;
   const { fps } = useVideoConfig();
   const t = frame - INTRO;
   const r = Math.max(0, Math.min(run.rounds.length - 1, Math.floor(t / ROUND)));
@@ -41,7 +43,8 @@ export const Bisection = () => {
     rd.probes.map((p, j) => ({ ...p, at: INTRO + k * ROUND + 6 + j * 5 })));
   const probesSoFar = seen.filter((p) => frame >= p.at).length + 1; // +1: the reported revision
 
-  const titleOpacity = interpolate(frame, [0, 15, INTRO - 10, INTRO], [0, 1, 1, 0.0], { extrapolateRight: 'clamp' });
+  const titleOpacity = mode === 'intro' ? interpolate(raw, [0, 15], [0, 1], { extrapolateRight: 'clamp' })
+    : interpolate(frame, [0, 15, INTRO - 10, INTRO], [0, 1, 1, 0.0], { extrapolateRight: 'clamp' });
   const cardIn = spring({ frame: frame - (INTRO + run.rounds.length * ROUND), fps, config: { damping: 16 } });
 
   return (
@@ -73,7 +76,7 @@ export const Bisection = () => {
       )}
       <Legend />
       <div style={{ position: 'absolute', right: 80, top: 60, fontSize: 34, color: '#94a3b8' }}>
-        test runs: {Math.min(probesSoFar, run.runs.length)}
+        test runs: {done ? run.testRuns : Math.min(probesSoFar, run.runs.length)}
       </div>
 
       {done && (
@@ -83,7 +86,7 @@ export const Bisection = () => {
           <div style={{ fontSize: 64, fontWeight: 800, marginTop: 10, fontFamily: 'Menlo, monospace' }}>commit {run.answer}</div>
           <div style={{ fontSize: 34, color: '#cbd5e1', marginTop: 10 }}>{run.subject.split('.')[0]}.</div>
           <div style={{ fontSize: 32, color: '#94a3b8', marginTop: 18 }}>
-            {run.runs.length} test runs · {Math.round(run.seconds)} s · confidence: high
+            {run.testRuns} test runs · {Math.round(run.seconds)} s · confidence: high
           </div>
         </div>
       )}
@@ -99,7 +102,7 @@ const Dot = ({ x, color, scale, label }: { x: number; color: string; scale: numb
 );
 
 const Legend = () => (
-  <div style={{ position: 'absolute', bottom: 70, width: '100%', display: 'flex', justifyContent: 'center', gap: 56, fontSize: 30 }}>
+  <div style={{ position: 'absolute', bottom: 170, width: '100%', display: 'flex', justifyContent: 'center', gap: 56, fontSize: 30 }}>
     {Object.keys(COLORS).map((k) => (
       <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#cbd5e1' }}>
         <div style={{ width: 22, height: 22, borderRadius: 11, background: COLORS[k] }} /> test {LABEL[k]}

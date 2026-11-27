@@ -1,0 +1,1 @@
+Then the runner on Google Cloud searches the history with that test. Four old versions at a time, built and tested in parallel. Pass, fail, pass. Five rounds, twenty-two test runs, a hundred seconds. The test passes on the commit before, and fails from this one on.

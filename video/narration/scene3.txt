@@ -1,0 +1,1 @@
+Bug Origin is a Rovo agent that lives in Jira. When a bug is filed, an Automation rule wakes it up. Nobody touches anything from here. The agent reads the whole report, including who said what, and decides whether it is a bug at all. Then it writes a small test that reproduces it, and runs it once on the reported version, to make sure the test really fails there.
